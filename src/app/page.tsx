@@ -1,113 +1,203 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { CardContent, Card } from "@/components/ui/card";
+import { NavBar } from "@/components/ui/navbar";
+import {
+  BrainCircuit,
+  CreditCard,
+  Zap,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
+import axios from "axios";
+import { getStripe } from "@/lib/utils";
+
+export default function LandingPage() {
+  const date = new Date();
+  const [email, setEmail] = useState("");
+
+  const { isSignedIn } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    isSignedIn && router.push("/home");
+  }, [isSignedIn, router]);
+
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const emailParam = encodeURIComponent(email);
+    window.location.href = `/sign-up?email=${emailParam}`;
+
+    setEmail("");
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
+    <div className="flex flex-col min-h-screen">
+      <NavBar />
+      <main className="flex-1">
+        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center space-y-4 text-center">
+              <div className="space-y-2">
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
+                  Welcome to Flashcard.io
+                </h1>
+                <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
+                  Revolutionize your learning with AI-powered flashcards.
+                  Create, study, and master any subject with ease.
+                </p>
+              </div>
+              <div className="w-full max-w-sm space-y-2">
+                <form className="flex space-x-2" onSubmit={handleSubmit}>
+                  <Input
+                    className="max-w-lg flex-1"
+                    placeholder="Enter your email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <Button type="submit">Get Started</Button>
+                </form>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Start your free trial. No credit card required.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section
+          id="features"
+          className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800"
+        >
+          <div className="container px-4 md:px-6">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12">
+              Key Features
+            </h2>
+            <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3">
+              <Card>
+                <CardContent className="flex flex-col items-center space-y-4 p-6">
+                  <BrainCircuit className="h-12 w-12 text-primary" />
+                  <h3 className="text-xl font-bold">AI-Powered Creation</h3>
+                  <p className="text-gray-500 dark:text-gray-400 text-center">
+                    Generate flashcards instantly with our advanced AI
+                    technology.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="flex flex-col items-center space-y-4 p-6">
+                  <Zap className="h-12 w-12 text-primary" />
+                  <h3 className="text-xl font-bold">Smart Study Sessions</h3>
+                  <p className="text-gray-500 dark:text-gray-400 text-center">
+                    Optimize your learning with personalized study schedules and
+                    adaptive algorithms.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="flex flex-col items-center space-y-4 p-6">
+                  <CreditCard className="h-12 w-12 text-primary" />
+                  <h3 className="text-xl font-bold">Flexible Plans</h3>
+                  <p className="text-gray-500 dark:text-gray-400 text-center">
+                    Choose from various subscription options to fit your needs
+                    and budget.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+        <section id="pricing" className="w-full py-12 md:py-24 lg:py-32">
+          <div className="container px-4 md:px-6">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12">
+              Pricing Plans
+            </h2>
+            <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+              <Card>
+                <CardContent className="flex flex-col items-center space-y-4 p-6">
+                  <h3 className="text-2xl font-bold">Pro</h3>
+                  <p className="text-4xl font-bold">
+                    $9.99<span className="text-xl font-normal">/month</span>
+                  </p>
+                  <ul className="space-y-2 text-center">
+                    <li>100 AI-generated flashcards</li>
+                  </ul>
+                  <Button className="w-full" asChild>
+                    <button onClick={() => router.push("/sign-up")}>Get Started</button>
+                  </Button>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="flex flex-col items-center space-y-4 p-6">
+                  <h3 className="text-2xl font-bold">Pro+</h3>
+                  <p className="text-4xl font-bold">
+                    $19.99<span className="text-xl font-normal">/month</span>
+                  </p>
+                  <ul className="space-y-2 text-center">
+                    <li>Unlimited AI-generated flashcards</li>
+                    <li>Priority support</li>
+                  </ul>
+                  <Button className="w-full" asChild>
+                    <button onClick={() => router.push("/sign-up")}>Get Started</button>
+                  </Button>
+                </CardContent>
+              </Card>
+              <Card className="sm:col-span-2 lg:col-span-1">
+                <CardContent className="flex flex-col items-center space-y-4 p-6">
+                  <h3 className="text-2xl font-bold">Enterprise</h3>
+                  <p className="text-4xl font-bold">Custom</p>
+                  <ul className="space-y-2 text-center">
+                    <li>All Pro features</li>
+                    <li>Custom integrations</li>
+                    <li>Dedicated account manager</li>
+                    <li>24/7 premium support</li>
+                  </ul>
+                  <Button className="w-full" asChild>
+                    <Link href="https://youtube.com/shorts/m4-dVOCSgdk?si=vviU7yrEQVi7mcqR">
+                      Contact Sales
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+        <section
+          id="about"
+          className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800"
+        >
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center space-y-4 text-center">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                About Flashcard.io
+              </h2>
+              <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
+                Flashcard.io is a cutting-edge web application designed to
+                revolutionize the way students and professionals create, manage,
+                and study flashcards. Our mission is to enhance the learning
+                experience through innovative technology and user-centric
+                design.
+              </p>
+              <div className="flex flex-col gap-2 min-[400px]:flex-row justify-center">
+                <Button className="w-64" onClick={() => window.scrollTo({top: 0})}>
+                  Get Started
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t text-center justify-center">
+        <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+          © {date.getFullYear()} Flashcard.io. All rights reserved.
         </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      </footer>
+    </div>
   );
 }
