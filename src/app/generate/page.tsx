@@ -44,7 +44,7 @@ export default function Generate() {
       setFlashcards([]);
       setFlipped([]);
 
-      const response = await axios.post("/api/generate", { data: text, numFlashcards: flashcardNumbers });
+      const response = await axios.post(process.env.OPENAI_API_LAMBDA_FUNCTION_URL || "", { data: text, numFlashcards: flashcardNumbers });
       setFlashcards(response.data);
       setLoading(false);
     } catch (err: any) {

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { APIGatewayEvent, Context, Callback } from "aws-lambda";
 import OpenAI from "openai";
 
 const systemPrompt = (numFlashcards: number) => `
@@ -18,13 +18,15 @@ Use bullet points or lists where appropriate to enhance clarity. Present the fla
 Generate exactly ${numFlashcards} flashcards.
 `;
 
-export async function POST(req: any) {
-    const openAI = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY
-    });
-    const { data, numFlashcards } = await req.json();
+const openAI = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
 
+export const handler = async (event: APIGatewayEvent, context: Context, callback: Callback) => {
     try {
+        const body = JSON.parse(event.body || "{}");
+        const { data, numFlashcards } = body;
+
         const completion = await openAI.chat.completions.create({
             messages: [
                 { role: "system", content: systemPrompt(numFlashcards) },
@@ -34,27 +36,37 @@ export async function POST(req: any) {
         });
 
         const content = completion.choices[0]?.message?.content;
-        console.log(completion);
-        console.log("Raw OpenAI Response Content:", content);
+        console.log("OpenAI Response:", content);
 
         let flashcards;
-
         try {
             flashcards = JSON.parse(content || "");
         } catch (error) {
             console.error("Failed to parse OpenAI response as JSON:", error);
-            return NextResponse.json({ error: "Failed to generate flashcards. Please try again." }, { status: 500 });
+            return callback(null, {
+                statusCode: 500,
+                body: JSON.stringify({ error: "Failed to generate flashcards. Please try again." })
+            });
         }
 
         if (!flashcards || !flashcards.flashcards) {
             console.error("Invalid response format from OpenAI:", content);
-            return NextResponse.json({ error: "Invalid response format from OpenAI." }, { status: 500 });
+            return callback(null, {
+                statusCode: 500,
+                body: JSON.stringify({ error: "Invalid response format from OpenAI." })
+            });
         }
 
-        return NextResponse.json(flashcards.flashcards);
+        return callback(null, {
+            statusCode: 200,
+            body: JSON.stringify(flashcards.flashcards)
+        });
 
     } catch (error) {
         console.error("Error communicating with OpenAI:", error);
-        return NextResponse.json({ error: "Failed to generate flashcards. Please try again." }, { status: 500 });
+        return callback(null, {
+            statusCode: 500,
+            body: JSON.stringify({ error: "Failed to generate flashcards. Please try again." })
+        });
     }
-}
+};
