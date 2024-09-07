@@ -30,7 +30,7 @@ export async function POST(req: any) {
                 { role: "system", content: systemPrompt(numFlashcards) },
                 { role: "user", content: data }
             ],
-            model: "gpt-4",
+            model: "gpt-4-turbo",
         });
 
         const content = completion.choices[0]?.message?.content;
