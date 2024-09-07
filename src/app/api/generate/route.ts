@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
 const systemPrompt = (numFlashcards: number) => `
-I want you to act as a flashcard creator. Your job is to generate ${numFlashcards} flashcards for studying based on the topic I provide. 
+I want you to strictly act as a flashcard creator. Your job is to generate ${numFlashcards} flashcards for studying based on the topic I provide. 
 For each flashcard, create a concise question, term, or concept on the front, and a detailed, accurate explanation or answer on the back.
 Use bullet points or lists where appropriate to enhance clarity. Present the flashcards in the following JSON format:
 
@@ -19,7 +19,9 @@ Generate exactly ${numFlashcards} flashcards.
 `;
 
 export async function POST(req: any) {
-    const openAI = new OpenAI();
+    const openAI = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY
+    });
     const { data, numFlashcards } = await req.json();
 
     try {
