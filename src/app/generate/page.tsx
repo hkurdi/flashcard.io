@@ -43,9 +43,19 @@ export default function Generate() {
       setLoading(true);
       setFlashcards([]);
       setFlipped([]);
+  
+      const response = await axios.post(process.env.NEXT_PUBLIC_OPENAI_API_LAMBDA_FUNCTION_URL || "", { data: text, numFlashcards: flashcardNumbers });
+      
+      const flashcardsData = response.data;
+      console.log(response.data);
 
-      const response = await axios.post(process.env.OPENAI_API_LAMBDA_FUNCTION_URL || "", { data: text, numFlashcards: flashcardNumbers });
-      setFlashcards(response.data);
+  
+      if (Array.isArray(flashcardsData)) {
+        setFlashcards(flashcardsData);
+      } else {
+        throw new Error("Invalid response format: expected an array.");
+      }
+  
       setLoading(false);
     } catch (err: any) {
       console.error("Error: ", err);
@@ -53,6 +63,7 @@ export default function Generate() {
       setLoading(false);
     }
   };
+  
 
   const handleCardClick = (id: number) => {
     setFlipped((prev) => {

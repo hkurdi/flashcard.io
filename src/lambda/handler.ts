@@ -1,6 +1,8 @@
 import { APIGatewayEvent, Context, Callback } from "aws-lambda";
 import OpenAI from "openai";
 
+require('dotenv').config();
+
 const systemPrompt = (numFlashcards: number) => `
 I want you to strictly act as a flashcard creator. Your job is to generate ${numFlashcards} flashcards for studying based on the topic I provide. 
 For each flashcard, create a concise question, term, or concept on the front, and a detailed, accurate explanation or answer on the back.
@@ -45,6 +47,11 @@ export const handler = async (event: APIGatewayEvent, context: Context, callback
             console.error("Failed to parse OpenAI response as JSON:", error);
             return callback(null, {
                 statusCode: 500,
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+                },
                 body: JSON.stringify({ error: "Failed to generate flashcards. Please try again." })
             });
         }
@@ -53,12 +60,22 @@ export const handler = async (event: APIGatewayEvent, context: Context, callback
             console.error("Invalid response format from OpenAI:", content);
             return callback(null, {
                 statusCode: 500,
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+                },
                 body: JSON.stringify({ error: "Invalid response format from OpenAI." })
             });
         }
 
         return callback(null, {
             statusCode: 200,
+            headers: {
+                "Access-Control-Allow-Origin": "*",  
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET",  
+            },
             body: JSON.stringify(flashcards.flashcards)
         });
 
@@ -66,6 +83,11 @@ export const handler = async (event: APIGatewayEvent, context: Context, callback
         console.error("Error communicating with OpenAI:", error);
         return callback(null, {
             statusCode: 500,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+            },
             body: JSON.stringify({ error: "Failed to generate flashcards. Please try again." })
         });
     }
