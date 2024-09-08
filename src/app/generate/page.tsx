@@ -43,19 +43,21 @@ export default function Generate() {
       setLoading(true);
       setFlashcards([]);
       setFlipped([]);
-  
-      const response = await axios.post(process.env.NEXT_PUBLIC_OPENAI_API_LAMBDA_FUNCTION_URL || "", { data: text, numFlashcards: flashcardNumbers });
-      
+
+      const response = await axios.post(
+        process.env.NEXT_PUBLIC_OPENAI_API_URL || "",
+        { data: text, numFlashcards: flashcardNumbers }
+      );
+
       const flashcardsData = response.data;
       console.log(response.data);
 
-  
       if (Array.isArray(flashcardsData)) {
         setFlashcards(flashcardsData);
       } else {
         throw new Error("Invalid response format: expected an array.");
       }
-  
+
       setLoading(false);
     } catch (err: any) {
       console.error("Error: ", err);
@@ -63,7 +65,6 @@ export default function Generate() {
       setLoading(false);
     }
   };
-  
 
   const handleCardClick = (id: number) => {
     setFlipped((prev) => {
@@ -192,7 +193,10 @@ export default function Generate() {
                 onChange={(e) => setFlashcardNumbers(e.target.value)}
               />
             </div>
-            <Button onClick={handleSubmit} disabled={!text || !flashcardNumbers || loading}>
+            <Button
+              onClick={handleSubmit}
+              disabled={!text || !flashcardNumbers || loading}
+            >
               {loading ? <Loader size="small" /> : "Generate Flashcards"}
             </Button>
           </CardContent>
@@ -207,11 +211,13 @@ export default function Generate() {
               {flashcards.map((flashcard, index) => (
                 <Card
                   key={index}
-                  className="cursor-pointer"
+                  className="cursor-pointer h-auto"
                   onClick={() => handleCardClick(index)}
                 >
-                  <CardContent className="p-6 h-48 flex items-center justify-center text-center overflow-y-scroll">
-                    {flipped[index] ? flashcard.back : flashcard.front}
+                  <CardContent className="p-6 h-48 flex flex-col justify-center text-center overflow-y-auto">
+                    <div className="text-base leading-relaxed">
+                      {flipped[index] ? flashcard.back : flashcard.front}
+                    </div>
                   </CardContent>
                 </Card>
               ))}
