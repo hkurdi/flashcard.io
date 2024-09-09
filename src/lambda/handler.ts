@@ -19,7 +19,7 @@ Use bullet points or lists where appropriate to enhance clarity. Present the fla
 
 Generate exactly ${numFlashcards} flashcards.
 `;
-
+ 
 const openAI = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });

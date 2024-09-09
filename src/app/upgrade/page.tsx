@@ -126,10 +126,10 @@ const handleProPlusClick = async () => {
               <p className="text-2xl font-bold mb-4">$9.99/month</p>
               <Button 
                 onClick={handleProClick} 
-                disabled={isLoading.pro}
+                disabled={true}
                 className="w-full"
               >
-                {isLoading.pro ? <Loader size="small" /> : "Upgrade to Pro"}
+                {isLoading.pro ? <Loader size="small" /> : "Coming Soon..."}
               </Button>
             </CardContent>
           </Card>
@@ -156,10 +156,10 @@ const handleProPlusClick = async () => {
               <p className="text-2xl font-bold mb-4">$19.99/month</p>
               <Button 
                 onClick={handleProPlusClick} 
-                disabled={isLoading.proPlus}
-                className="w-full"
+                disabled={true}
+                className="w-full disabled"
               >
-                {isLoading.proPlus ? <Loader size="small" /> : "Upgrade to Pro Plus"}
+                {isLoading.proPlus ? <Loader size="small" /> : "Coming Soon..."}
               </Button>
             </CardContent>
           </Card>
